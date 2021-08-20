@@ -3,34 +3,37 @@ package main
 import (
 	"bufio"
 	"encoding/csv"
+	"flag"
 	"fmt"
+	"math/rand"
 	"os"
 	"strings"
+	"time"
 )
 
-var filePath string = "./quiz_game/problems.csv"
+const defaultFilePath = "./quiz_game/problems.csv"
 
 type problem struct {
 	question string
 	answer   string
 }
 
-func extractQuestionAndAnswer(question string) problem {
-	lastIndex := strings.LastIndex(question, ",")
-	if lastIndex == -1 {
-		panic("Invalid Question!")
-	}
-
-	return problem{
-		question: strings.TrimSpace(question[:lastIndex]),
-		answer:   strings.TrimSpace(question[lastIndex+1:]),
-	}
-}
-
 func main() {
 
+	// Setup command line flags
+	var quizFilePath string
+	flag.StringVar(&quizFilePath, "file", defaultFilePath, "fully legal path to the csv file containing the quiz")
+
+	var shouldRandomizeQuestions bool
+	flag.BoolVar(&shouldRandomizeQuestions, "randomize", false, "set if questions should be randomized")
+
+	var quizTime int
+	flag.IntVar(&quizTime, "time", 30, "set time required to answer a question (in seconds)")
+
+	flag.Parse()
+
 	// Open a file
-	file, err := os.Open(filePath)
+	file, err := os.Open(quizFilePath)
 	if err != nil {
 		panic(err)
 	}
@@ -41,7 +44,6 @@ func main() {
 
 	// Extract and parse problems
 	for {
-
 		if statement, _ := csvFileReader.Read(); statement == nil {
 			break
 		} else {
@@ -57,10 +59,34 @@ func main() {
 			}
 			problems = append(problems, newProblem)
 		}
+	}
 
+	if shouldRandomizeQuestions {
+		randomizeQuestions(problems)
 	}
 
 	// Run quiz
+	runQuiz(problems)
+}
+
+func extractQuestionAndAnswer(question string) problem {
+	lastIndex := strings.LastIndex(question, ",")
+	if lastIndex == -1 {
+		panic("Invalid Question!")
+	}
+
+	return problem{
+		question: strings.TrimSpace(question[:lastIndex]),
+		answer:   strings.TrimSpace(question[lastIndex+1:]),
+	}
+}
+
+func randomizeQuestions(problems []problem) {
+	rand.Seed(time.Now().UnixMilli())
+	rand.Shuffle(len(problems), func(i, j int) { problems[i], problems[j] = problems[j], problems[i] })
+}
+
+func runQuiz(problems []problem) {
 	totalQuestions := len(problems)
 	correctAnswers := 0
 
@@ -83,5 +109,4 @@ func main() {
 
 	// Print the result
 	fmt.Printf("\nYou Scored: %v/%v\n", correctAnswers, totalQuestions)
-
 }
