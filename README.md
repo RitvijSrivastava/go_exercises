@@ -1,4 +1,4 @@
-# Gopher Exercises
+# Go Exercises
 
 This repo contains my solutions for exercises mentioned on [Gophercises](https://gophercises.com/).
 
