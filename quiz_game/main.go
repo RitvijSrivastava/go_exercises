@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-const defaultFilePath = "./quiz_game/problems.csv"
+const defaultFilePath = "./problems.csv"
 
 type problem struct {
 	question string
@@ -28,7 +28,7 @@ func main() {
 	flag.BoolVar(&shouldRandomizeQuestions, "randomize", false, "set if questions should be randomized")
 
 	var quizTime int
-	flag.IntVar(&quizTime, "time", 30, "set time required to answer a question (in seconds)")
+	flag.IntVar(&quizTime, "time", 30, "time required to complete the quiz (in seconds)")
 
 	flag.Parse()
 
@@ -61,12 +61,13 @@ func main() {
 		}
 	}
 
+	// Randomize Question order if the "randomize" flag is set.
 	if shouldRandomizeQuestions {
 		randomizeQuestions(problems)
 	}
 
 	// Run quiz
-	runQuiz(problems)
+	runQuiz(problems, quizTime)
 }
 
 func extractQuestionAndAnswer(question string) problem {
@@ -86,27 +87,55 @@ func randomizeQuestions(problems []problem) {
 	rand.Shuffle(len(problems), func(i, j int) { problems[i], problems[j] = problems[j], problems[i] })
 }
 
-func runQuiz(problems []problem) {
+func runQuiz(problems []problem, quizTime int) {
+
+	quizTimer := time.NewTimer(time.Duration(quizTime) * time.Second)
+
 	totalQuestions := len(problems)
-	correctAnswers := 0
+	correctlyAnswered := 0
+	questionsAttempted := 0
 
 	consoleReader := bufio.NewReader(os.Stdin)
 
+	// Start quiz after the user presses "Enter"
+	fmt.Printf("Press Enter to start the quiz")
+	consoleReader.ReadString('\n')
+
+quiz:
 	for _, statement := range problems {
 		fmt.Print(statement.question, "? ")
+		userAnswerChannel := make(chan string)
 
-		// Take user input
-		userInput, _ := consoleReader.ReadString('\n')
+		go func() {
+			// Take user input
+			userInput, _ := consoleReader.ReadString('\n')
 
-		// Clean the user input
-		userInput = strings.Replace(userInput, "\n", "", -1)
-		userInput = strings.TrimSpace(userInput)
+			// Clean the user input
+			userInput = strings.Replace(userInput, "\n", "", -1)
+			userInput = strings.TrimSpace(userInput)
 
-		if strings.Compare(userInput, statement.answer) == 0 {
-			correctAnswers++
+			userAnswerChannel <- userInput
+		}()
+
+		select {
+		case <-quizTimer.C:
+			break quiz
+		case userInput := <-userAnswerChannel:
+			if strings.Compare(userInput, statement.answer) == 0 {
+				correctlyAnswered++
+			}
+			questionsAttempted++
 		}
 	}
 
-	// Print the result
-	fmt.Printf("\nYou Scored: %v/%v\n", correctAnswers, totalQuestions)
+	// Print result
+	printResult(correctlyAnswered, questionsAttempted, totalQuestions)
+}
+
+func printResult(correctlyAnswered, questionsAttempted, totalQuestions int) {
+
+	fmt.Printf("\nResult:\n")
+	fmt.Println("Questions Attempted:", questionsAttempted)
+	fmt.Println("Correct Answers:", correctlyAnswered)
+	fmt.Printf("\nYour score: %v/%v\n", correctlyAnswered, totalQuestions)
 }
