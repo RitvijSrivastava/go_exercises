@@ -21,10 +21,12 @@ func main() {
 	}
 
 	tmpl := template.Must(template.ParseFiles("layout.html"))
-	arcHandler := ArcHandler(story, tmpl)
+
+	mux := http.NewServeMux()
+	mux.Handle("/", ArcHandler(story, tmpl))
 
 	fmt.Println("Statring the server on :80")
-	http.ListenAndServe(":80", arcHandler)
+	http.ListenAndServe(":80", mux)
 }
 
 func ArcHandler(story map[string]Arc, tmpl *template.Template) http.HandlerFunc {
