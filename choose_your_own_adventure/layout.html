@@ -1,33 +1,68 @@
-<style>
-.center {
-  margin: auto;
-  width: 50%;
-  border: 3px solid black;
-  padding: 14px;
-  text-align: center;
-  font-size: medium;
-}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Choose Your Own Adventure</title>
+  </head>
+  <body>
+    <style>
+      body {
+        font-family: helvetica, arial;
+      }
+      h1 {
+        text-align: center;
+        position: relative;
+      }
+      .story {
+        width: 80%;
+        max-width: 500px;
+        margin: auto;
+        margin-top: 40px;
+        margin-bottom: 40px;
+        padding: 80px;
+        background: #fcf6fc;
+        border: 1px solid #eee;
+        box-shadow: 0 10px 6px -6px #797;
+      }
+      ul {
+        border-top: 1px dotted #ccc;
+        padding: 10px 0 0 0;
+        -webkit-padding-start: 0;
+      }
+      li {
+        padding-top: 10px;
+      }
+      a,
+      a:visited {
+        text-decoration: underline;
+        color: #555;
+      }
+      a:active,
+      a:hover {
+        color: #222;
+      }
+      p {
+        text-indent: 1em;
+      }
+    </style>
 
-li {
-    padding: 10px;      
-}
-</style>
-
-<div class="center">
-    <h1>{{.Title}}</h1>
-    {{range .Story}}
-        <p>{{.}}</p>
-    {{end}}
-
-    {{if .Options}}
-    <ul>
-    {{range .Options}} 
-    <li>
-        <a href="{{.NextArc}}" class="option">{{.Text}}</li>
-    </li>
-    {{end}}
-    </ul>
-    {{else}}
-    <h3>The End</h3>
-    {{end}}
-</div>
+    <div class="story">
+      <h1>{{.Title}}</h1>
+      {{range .Story}}
+      <p>{{.}}</p>
+      {{end}} {{if .Options}}
+      <ul>
+        {{range .Options}}
+        <li>
+          <a href="{{.NextArc}}" class="option">{{.Text}}</a>
+        </li>
+        {{end}}
+      </ul>
+      {{else}}
+      <h3>The End</h3>
+      {{end}}
+    </div>
+  </body>
+</html>
