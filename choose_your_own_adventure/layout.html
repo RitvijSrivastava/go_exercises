@@ -1,0 +1,33 @@
+<style>
+.center {
+  margin: auto;
+  width: 50%;
+  border: 3px solid black;
+  padding: 14px;
+  text-align: center;
+  font-size: medium;
+}
+
+li {
+    padding: 10px;      
+}
+</style>
+
+<div class="center">
+    <h1>{{.Title}}</h1>
+    {{range .Story}}
+        <p>{{.}}</p>
+    {{end}}
+
+    {{if .Options}}
+    <ul>
+    {{range .Options}} 
+    <li>
+        <a href="{{.NextArc}}" class="option">{{.Text}}</li>
+    </li>
+    {{end}}
+    </ul>
+    {{else}}
+    <h3>The End</h3>
+    {{end}}
+</div>
