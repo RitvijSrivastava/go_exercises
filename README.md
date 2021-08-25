@@ -8,7 +8,7 @@ This repo contains my solutions for exercises mentioned on [Gophercises](https:/
 | --------------------------------- | :----------------: | :----------------: |
 | Quiz Game                         | :white_check_mark: | :white_check_mark: |
 | URl Shortener                     | :white_check_mark: |                    |
-| Choose Your Own Adventure         |                    |                    |
+| Choose Your Own Adventure         | :white_check_mark: |                    |
 | HTML Link Parser                  |                    |                    |
 | Sitemap Builder                   |                    |                    |
 | Hacker Rank Problem               |                    |                    |
