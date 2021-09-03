@@ -9,7 +9,7 @@ This repo contains my solutions for exercises mentioned on [Gophercises](https:/
 | Quiz Game                         | :white_check_mark: | :white_check_mark: |
 | URl Shortener                     | :white_check_mark: |                    |
 | Choose Your Own Adventure         | :white_check_mark: |                    |
-| HTML Link Parser                  |                    |                    |
+| HTML Link Parser                  | :white_check_mark: | :white_check_mark: |
 | Sitemap Builder                   |                    |                    |
 | Hacker Rank Problem               |                    |                    |
 | CLI Task Manager                  |                    |                    |
