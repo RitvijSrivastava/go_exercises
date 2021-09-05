@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/RitvijSrivastava/go_exercises/url_shortener/urlshort"
 	"net/http"
+
+	"github.com/RitvijSrivastava/go_exercises/url_shortener/urlshort"
 )
 
 func main() {
