@@ -1,15 +1,51 @@
 package main
 
 import (
+	"encoding/xml"
 	"flag"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 
 	"github.com/RitvijSrivastava/go_exercises/sitemap_builder/link_extractor"
 )
+
+const xmlns = "http://www.sitemaps.org/schemas/sitemap/0.9"
+
+type loc struct {
+	Url string `xml:"loc"`
+}
+
+type urlset struct {
+	Urls  []loc  `xml:"url"`
+	Xmlns string `xml:"xmlns,attr"`
+}
+
+func main() {
+
+	url := flag.String("url", "https://gophercises.com", "url for sitemap builder")
+	maxDepth := flag.Int("depth", 3, "how deep should the builder go")
+
+	flag.Parse()
+
+	links := bfs(*url, *maxDepth)
+
+	xmlData := urlset{Xmlns: xmlns}
+	for _, link := range links {
+		xmlData.Urls = append(xmlData.Urls, loc{link})
+	}
+
+	fmt.Print(xml.Header)
+	enc := xml.NewEncoder(os.Stdout)
+	enc.Indent("", " ")
+	if err := enc.Encode(xmlData); err != nil {
+		panic(err)
+	}
+	fmt.Println()
+}
 
 func bfs(baseUrl string, maxDepth int) []string {
 	visited := make(map[string]struct{})
@@ -87,16 +123,4 @@ func withPrefix(prefix string) func(string) bool {
 	return func(link string) bool {
 		return strings.HasPrefix(link, prefix)
 	}
-}
-
-func main() {
-
-	url := flag.String("url", "https://gophercises.com", "url for sitemap builder")
-	maxDepth := flag.Int("depth", 3, "how deep should the builder go")
-
-	flag.Parse()
-
-	links := bfs(*url, *maxDepth)
-	fmt.Println(links)
-	// TODO: Add XML
 }
