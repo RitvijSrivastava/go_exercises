@@ -1,98 +1,102 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"io"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/RitvijSrivastava/go_exercises/sitemap_builder/link_extractor"
-	"golang.org/x/net/html"
 )
 
-const domain string = "https://gophercises.com"
+func bfs(baseUrl string, maxDepth int) []string {
+	visited := make(map[string]struct{})
+	q := make(map[string]struct{})
+	q[baseUrl] = struct{}{}
 
-// GET the response and return the parsed HTML
-func parseLink(link string) (*html.Node, error) {
+	for depth := 0; depth <= maxDepth; depth++ {
+
+		if len(q) == 0 {
+			break
+		}
+
+		tmpq := make(map[string]struct{})
+		for link, _ := range q {
+			if _, ok := visited[link]; ok {
+				continue
+			}
+			visited[link] = struct{}{}
+			links := get(link)
+			for _, url := range links {
+				tmpq[url] = struct{}{}
+			}
+		}
+		// Move to the new layer
+		q = tmpq
+	}
+
+	links := make([]string, 0)
+	for url, _ := range visited {
+		links = append(links, url)
+	}
+	return links
+}
+
+func get(link string) []string {
 	resp, err := http.Get(link)
 	if err != nil {
-		return nil, err
+		return []string{}
 	}
 	defer resp.Body.Close()
 
-	doc, err := html.Parse(resp.Body)
-	if err != nil {
-		return nil, err
+	reqURL := resp.Request.URL
+	baseURL := url.URL{
+		Scheme: reqURL.Scheme,
+		Host:   reqURL.Host,
 	}
-	return doc, nil
+	return filter(hrefs(resp.Body, baseURL.String()), withPrefix(baseURL.String()))
 }
 
-// Check if a link is valid or not
-// Return a valid path to the link, if the link is valid
-func isValidLink(link, domain string) (bool, string) {
-	// Remove last '/' from domain
-	if domain[len(domain)-1] == '/' {
-		domain = domain[:len(domain)-1]
-	}
+func hrefs(r io.Reader, baseURL string) []string {
+	links := link_extractor.Parse(r)
+	var urls []string
 
-	if link[0] == '/' || strings.HasPrefix(link, domain) {
-		if link[0] == '/' {
-			link = domain + "" + link
+	for _, link := range links {
+		if strings.HasPrefix(link.Href, "/") {
+			urls = append(urls, baseURL+link.Href)
+		} else if strings.HasPrefix(link.Href, "http") {
+			urls = append(urls, link.Href)
 		}
-		return true, link
 	}
-	return false, ""
+	return urls
 }
 
-// Extract "hrefs" from a HTML Page, and
-// return a list of valid links.
-func extractLinks(link, domain string) []string {
-	doc, err := parseLink(link)
-	if err != nil {
-		panic(err)
-	}
-
-	// Extract all links from a page
-	extracted_links := link_extractor.ExtractLinks(doc)
-
-	var valid_links []string
-	for _, link := range extracted_links {
-		if ok, val := isValidLink(link.Href, domain); ok {
-			valid_links = append(valid_links, val)
+func filter(links []string, filterFn func(string) bool) []string {
+	var urls []string
+	for _, link := range links {
+		if filterFn(link) {
+			urls = append(urls, link)
 		}
 	}
-	return valid_links
+	return urls
 }
 
-// Get all links from a domain
-func getLinks(domain string) map[string]string {
-	set := make(map[string]string)
-
-	var queue []string
-	queue = append(queue, domain)
-
-	for len(queue) > 0 {
-		front := queue[0]
-		queue = queue[1:]
-
-		// fmt.Println("Processing  ", front)
-
-		valid_links := extractLinks(front, front)
-		for _, link := range valid_links {
-			if _, exists := set[link]; !exists {
-				set[link] = front
-				queue = append(queue, link)
-			}
-		}
+func withPrefix(prefix string) func(string) bool {
+	return func(link string) bool {
+		return strings.HasPrefix(link, prefix)
 	}
-	return set
 }
 
 func main() {
-	links := getLinks(domain)
-	for link := range links {
-		fmt.Println(link)
-	}
 
-	// TODO: Improve Base URL
+	url := flag.String("url", "https://gophercises.com", "url for sitemap builder")
+	maxDepth := flag.Int("depth", 3, "how deep should the builder go")
+
+	flag.Parse()
+
+	links := bfs(*url, *maxDepth)
+	fmt.Println(links)
 	// TODO: Add XML
 }

@@ -1,6 +1,7 @@
 package link_extractor
 
 import (
+	"io"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -9,6 +10,14 @@ import (
 type Link struct {
 	Href string
 	Text string
+}
+
+func Parse(r io.Reader) []Link {
+	doc, err := html.Parse(r)
+	if err != nil {
+		return []Link{}
+	}
+	return ExtractLinks(doc)
 }
 
 func ExtractLinks(n *html.Node) []Link {
