@@ -11,7 +11,7 @@ This repo contains my solutions for exercises mentioned on [Gophercises](https:/
 | Choose Your Own Adventure         | :white_check_mark: |                    |
 | HTML Link Parser                  | :white_check_mark: | :white_check_mark: |
 | Sitemap Builder                   | :white_check_mark: | :white_check_mark: |
-| Hacker Rank Problem               |                    |                    |
+| Hacker Rank Problem               | :white_check_mark: | :white_check_mark: |
 | CLI Task Manager                  |                    |                    |
 | Phone Number Normalizer           |                    |                    |
 | Deck of Cards                     |                    |                    |
