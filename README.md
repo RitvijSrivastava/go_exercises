@@ -10,7 +10,7 @@ This repo contains my solutions for exercises mentioned on [Gophercises](https:/
 | URl Shortener                     | :white_check_mark: |                    |
 | Choose Your Own Adventure         | :white_check_mark: |                    |
 | HTML Link Parser                  | :white_check_mark: | :white_check_mark: |
-| Sitemap Builder                   |                    |                    |
+| Sitemap Builder                   | :white_check_mark: | :white_check_mark: |
 | Hacker Rank Problem               |                    |                    |
 | CLI Task Manager                  |                    |                    |
 | Phone Number Normalizer           |                    |                    |
